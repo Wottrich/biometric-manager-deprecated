@@ -1,7 +1,7 @@
 # SecurityManager
 A Library to help you protect your applications.
 
-[![](https://jitpack.io/v/Wottrich/SecurityManager.svg)](https://jitpack.io/#Wottrich/SecurityManager)
+[![](https://jitpack.io/v/Wottrich/security-manager.svg)](https://jitpack.io/#Wottrich/security-manager)
 
 ## Simple to use
 #### • This is the first way to use the FingerprintDialog:
