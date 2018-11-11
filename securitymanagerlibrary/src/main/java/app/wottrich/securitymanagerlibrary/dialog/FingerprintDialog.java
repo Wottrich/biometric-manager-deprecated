@@ -13,6 +13,7 @@ import android.security.keystore.KeyGenParameterSpec;
 import android.security.keystore.KeyProperties;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
+import android.support.annotation.RequiresPermission;
 import android.support.v4.app.Fragment;
 import android.support.v4.hardware.fingerprint.FingerprintManagerCompat;
 import android.util.Log;
@@ -45,6 +46,7 @@ import app.wottrich.securitymanagerlibrary.interfaces.OnSuccessFingerprint;
  * @version 1.0
  * @since 10/11/2018.
  */
+
 
 @RequiresApi(api = Build.VERSION_CODES.M)
 @SuppressLint("ValidFragment")
@@ -91,26 +93,31 @@ public class FingerprintDialog extends BaseLockDialog implements View.OnClickLis
     //</editor-folder>
 
     //<editor-folder defaultstate="Collapsed" desc="Constructors Defaults with Activity">
+    @RequiresPermission("android.permission.USE_FINGERPRINT")
     public FingerprintDialog(@NonNull Activity activity) {
         this.activity = activity;
     }
 
+    @RequiresPermission("android.permission.USE_FINGERPRINT")
     public FingerprintDialog(@NonNull Activity activity, @NonNull View.OnClickListener listenerCanceled) {
         this.activity = activity;
         this.listenerCanceled = listenerCanceled;
     }
 
+    @RequiresPermission("android.permission.USE_FINGERPRINT")
     public FingerprintDialog(@NonNull Activity activity, @NonNull AllInterfaceFingerprint allCallback) {
         this.activity = activity;
         this.all = allCallback;
     }
 
+    @RequiresPermission("android.permission.USE_FINGERPRINT")
     public FingerprintDialog(@NonNull Activity activity, @NonNull OnSuccessFingerprint success, @NonNull OnErrorFingerprint error) {
         this.activity = activity;
         this.success = success;
         this.error = error;
     }
 
+    @RequiresPermission("android.permission.USE_FINGERPRINT")
     public FingerprintDialog(@NonNull Activity activity, @NonNull OnSuccessFingerprint success, @NonNull OnErrorFingerprint error, @NonNull OnInformationFingerprint information, @NonNull OnCanceledFingerprint canceled) {
         this.activity = activity;
         this.success = success;
