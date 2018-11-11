@@ -13,4 +13,4 @@ A Library to help you protect your applications.
 
 
 #### How to install it via Gradle:
-[Click here](https://jitpack.io/#Wottrich/SecurityManager)
+[Click here](https://jitpack.io/#Wottrich/security-manager)
