@@ -8,7 +8,7 @@ A Library to help you protect your applications.
 ![](screenshots/updating.jpg)
 
 #### • If you want to control the return you can use: 
-![](screenshots/simple_mode_2.png)
+![](screenshots/updating2.png)
 
 
 
