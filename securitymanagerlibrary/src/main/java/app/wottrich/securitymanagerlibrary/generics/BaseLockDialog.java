@@ -19,6 +19,7 @@ import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.TranslateAnimation;
 
+import app.wottrich.securitymanagerlibrary.R;
 import app.wottrich.securitymanagerlibrary.annotations.ContentView;
 
 
@@ -142,8 +143,8 @@ public abstract class BaseLockDialog extends DialogFragment {
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        ContentView annotation = getClass().getAnnotation(ContentView.class);
-        View v = inflater.inflate(annotation.value(), container, false);
+        //ContentView annotation = getClass().getAnnotation(ContentView.class);
+        View v = inflater.inflate(R.layout.dialog_fingerprint, container, false);
         this.onLoadComponents(v);
         new Handler().post(this::onInitValues);
         return v;
