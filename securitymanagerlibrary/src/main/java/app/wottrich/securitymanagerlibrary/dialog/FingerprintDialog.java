@@ -91,10 +91,10 @@ public class FingerprintDialog extends BaseLockDialog implements View.OnClickLis
     //</editor-folder>
 
     //<editor-folder defaultstate="Collapsed" desc="Constructors Defaults with Activity">
-    /*public FingerprintDialog(@NonNull Activity activity) {
+    public FingerprintDialog(@NonNull Activity activity) {
         this.activity = activity;
     }
-    */
+
     public FingerprintDialog(@NonNull Activity activity, @NonNull View.OnClickListener listenerCanceled) {
         this.activity = activity;
         this.listenerCanceled = listenerCanceled;
