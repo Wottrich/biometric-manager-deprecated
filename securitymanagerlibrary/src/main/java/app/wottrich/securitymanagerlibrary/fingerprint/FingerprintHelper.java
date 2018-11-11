@@ -2,6 +2,7 @@ package app.wottrich.securitymanagerlibrary.fingerprint;
 
 import android.os.Build;
 import android.support.annotation.RequiresApi;
+import android.support.annotation.RequiresPermission;
 import android.support.v4.hardware.fingerprint.FingerprintManagerCompat;
 import android.support.v4.os.CancellationSignal;
 
@@ -29,8 +30,10 @@ public class FingerprintHelper extends FingerprintManagerCompat.AuthenticationCa
 
     private AllInterfaceFingerprint allInterfaceFingerprint;
 
+    @RequiresPermission("android.permission.USE_FINGERPRINT")
     public FingerprintHelper () {}
 
+    @RequiresPermission("android.permission.USE_FINGERPRINT")
     public void attachCallback(OnSuccessFingerprint onSuccessFingerprint, OnInformationFingerprint onInformationFingerprint, OnErrorFingerprint onErrorFingerprint, OnFailedFingerprint onFailedFingerprint) {
         this.onSuccessFingerprint = onSuccessFingerprint;
         this.onInformationFingerprint = onInformationFingerprint;
@@ -38,10 +41,12 @@ public class FingerprintHelper extends FingerprintManagerCompat.AuthenticationCa
         this.onFailedFingerprint = onFailedFingerprint;
     }
 
+    @RequiresPermission("android.permission.USE_FINGERPRINT")
     public void allCallback(AllInterfaceFingerprint allInterfaceFingerprint) {
         this.allInterfaceFingerprint = allInterfaceFingerprint;
     }
 
+    @RequiresPermission("android.permission.USE_FINGERPRINT")
     public void startAuth (FingerprintManagerCompat managerCompat, FingerprintManagerCompat.CryptoObject cryptoObject) {
         cancellationSignal = new CancellationSignal();
         managerCompat.authenticate(cryptoObject, 0, cancellationSignal, this, null);

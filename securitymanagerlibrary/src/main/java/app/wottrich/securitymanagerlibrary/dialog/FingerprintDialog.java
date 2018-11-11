@@ -32,6 +32,7 @@ import app.wottrich.securitymanagerlibrary.R;
 import app.wottrich.securitymanagerlibrary.annotations.ContentView;
 import app.wottrich.securitymanagerlibrary.exception.EqualKeyException;
 import app.wottrich.securitymanagerlibrary.fingerprint.FingerprintHelper;
+import app.wottrich.securitymanagerlibrary.fingerprint.FingerprintUtils;
 import app.wottrich.securitymanagerlibrary.generics.BaseLockDialog;
 import app.wottrich.securitymanagerlibrary.interfaces.AllInterfaceFingerprint;
 import app.wottrich.securitymanagerlibrary.interfaces.OnCanceledFingerprint;
@@ -167,14 +168,9 @@ public class FingerprintDialog extends BaseLockDialog implements View.OnClickLis
 
     //<editor-folder defaultstate="Collapsed" desc="Settings Fingerprint">
     @RequiresApi(api = Build.VERSION_CODES.M)
-    private boolean isFingerprintAvailable() {
-        return manager.isHardwareDetected() && manager.hasEnrolledFingerprints();
-    }
-
-    @RequiresApi(api = Build.VERSION_CODES.M)
     private void initFingerprint() {
         try {
-            if (isFingerprintAvailable()) {
+            if (FingerprintUtils.isFingerprintAvailable(activity)) {
                 setupFingerprint();
             }
         } catch (Exception e) {
