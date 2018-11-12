@@ -29,9 +29,9 @@ import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 
 import app.wottrich.securitymanagerlibrary.R;
-import app.wottrich.securitymanagerlibrary.annotations.ContentView;
-import app.wottrich.securitymanagerlibrary.exception.EqualKeyException;
 import app.wottrich.securitymanagerlibrary.fingerprint.FingerprintHelper;
+import app.wottrich.securitymanagerlibrary.fingerprint.FingerprintKeys;
+import app.wottrich.securitymanagerlibrary.fingerprint.FingerprintSetup;
 import app.wottrich.securitymanagerlibrary.fingerprint.FingerprintUtils;
 import app.wottrich.securitymanagerlibrary.generics.BaseLockDialog;
 import app.wottrich.securitymanagerlibrary.interfaces.AllInterfaceFingerprint;
@@ -52,9 +52,6 @@ import app.wottrich.securitymanagerlibrary.interfaces.OnSuccessFingerprint;
 @RequiresApi(api = Build.VERSION_CODES.M)
 @SuppressLint("ValidFragment")
 public class FingerprintDialog extends BaseLockDialog implements View.OnClickListener, OnSuccessFingerprint, OnErrorFingerprint, OnFailedFingerprint, OnInformationFingerprint, AllInterfaceFingerprint {
-
-    private static String KEY_ALIAS_DEFAULT_FINGERPRINT_LIB = "FINGERPRINT_ALIAS_LOCK_LIB";
-    public static String KEY_ALIAS_DEFAULT_ENCODE = "FINGERPRINT_ALIAS_ENCODE";
 
     //<editor-folder defaultstate="Collapsed" desc="Widgets Fingerprint">
     private ImageView ivFingerprint;
@@ -79,10 +76,13 @@ public class FingerprintDialog extends BaseLockDialog implements View.OnClickLis
     private Fragment fragment;
     //</editor-folder>
 
+    //<editor-folder defaultstate="Collapsed" desc="Security Key and FingerprintManager">
     private Cipher cipher;
     private KeyStore keyStore;
+    private FingerprintSetup setup;
     private FingerprintManagerCompat manager;
     private FingerprintHelper helper;
+    //</editor-folder>
 
     //<editor-folder defaultstate="Collapsed" desc="Interface Callback Fingerprint">
     private OnSuccessFingerprint success;
@@ -159,6 +159,7 @@ public class FingerprintDialog extends BaseLockDialog implements View.OnClickLis
                     activity.requestPermissions(new String[] {Manifest.permission.USE_FINGERPRINT}, 1);
             } else {
                 manager = FingerprintManagerCompat.from(this.activity);
+                setup = new FingerprintSetup ();
                 initFingerprint();
             }
         else Log.w("WARNING LOCK LIB", "INVALID SDK VERSION");
@@ -182,7 +183,7 @@ public class FingerprintDialog extends BaseLockDialog implements View.OnClickLis
     private void setupFingerprint() {
         KeyguardManager keyguardManager = (KeyguardManager) activity.getSystemService(Context.KEYGUARD_SERVICE);
         if (keyguardManager != null && keyguardManager.isKeyguardSecure()) {
-            if (generateKey() && initCipher()) {
+            if (setup.generateKey() && setup.initCipher()) {
                 FingerprintManagerCompat.CryptoObject cryptoObject = new FingerprintManagerCompat.CryptoObject(cipher);
 
                 helper = new FingerprintHelper();
@@ -192,43 +193,6 @@ public class FingerprintDialog extends BaseLockDialog implements View.OnClickLis
             }
         } else error.onError("Error to generator fingerprint keyguard manager", true);
     }
-
-    @RequiresApi(api = Build.VERSION_CODES.M)
-    private boolean generateKey() {
-        try {
-            keyStore = KeyStore.getInstance("AndroidKeyStore");
-            KeyGenerator keyGenerator = KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, "AndroidKeyStore");
-            keyStore.load(null);
-            keyGenerator.init(new KeyGenParameterSpec.Builder(KEY_ALIAS_DEFAULT_FINGERPRINT_LIB, KeyProperties.PURPOSE_ENCRYPT | KeyProperties.PURPOSE_DECRYPT)
-                    .setBlockModes(KeyProperties.BLOCK_MODE_CBC)
-                    .setUserAuthenticationRequired(true)
-                    .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_PKCS7).build()
-            );
-            keyGenerator.generateKey();
-            return true;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-
-    @RequiresApi(api = Build.VERSION_CODES.M)
-    public boolean initCipher () {
-        try {
-            cipher = Cipher.getInstance(KeyProperties.KEY_ALGORITHM_AES
-                    + "/" + KeyProperties.BLOCK_MODE_CBC
-                    + "/" + KeyProperties.ENCRYPTION_PADDING_PKCS7);
-
-            keyStore.load(null);
-            SecretKey key = (SecretKey) keyStore.getKey(KEY_ALIAS_DEFAULT_FINGERPRINT_LIB, null);
-            cipher.init(Cipher.ENCRYPT_MODE, key);
-            return true;
-        } catch (Exception e){
-            e.printStackTrace();
-            return false;
-        }
-    }
-
     //</editor-folder>
 
     private void setText(TextView tv, String text) {
@@ -428,23 +392,6 @@ public class FingerprintDialog extends BaseLockDialog implements View.OnClickLis
     public FingerprintDialog setOnActivityResult(PreferenceManager.OnActivityResultListener activityResult) {
         this.activityResult = activityResult;
         return this;
-    }
-    //</editor-folder>
-
-    //<editor-folder defaultstate="Collapsed" desc="Static Methods">
-    public static void setKeyFingerprint (@NonNull String key) {
-        FingerprintDialog.KEY_ALIAS_DEFAULT_FINGERPRINT_LIB = key;
-    }
-
-    public static void setKeyEncode (@NonNull String key) {
-        FingerprintDialog.KEY_ALIAS_DEFAULT_ENCODE = key;
-    }
-
-    public static void setKeys (@NonNull String fingerprintKey, @NonNull String encodeKey) throws EqualKeyException {
-        if (!fingerprintKey.isEmpty () && !encodeKey.isEmpty () && !fingerprintKey.equals (encodeKey)) {
-            FingerprintDialog.KEY_ALIAS_DEFAULT_FINGERPRINT_LIB = fingerprintKey;
-            FingerprintDialog.KEY_ALIAS_DEFAULT_ENCODE = encodeKey;
-        } else throw new EqualKeyException ("Keys Securities can't be equals or empty.");
     }
     //</editor-folder>
 
