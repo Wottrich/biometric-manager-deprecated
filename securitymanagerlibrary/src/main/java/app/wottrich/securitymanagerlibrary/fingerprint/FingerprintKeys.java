@@ -21,7 +21,7 @@ public class FingerprintKeys {
         FingerprintKeys.KEY_ALIAS_DEFAULT_ENCODE = key;
     }
 
-    public static void setKeys (@NonNull String fingerprintKey, @NonNull String encodeKey) throws EqualKeyException {
+    public static void setKeys (@NonNull String fingerprintKey, @NonNull String encodeKey) {
         if (!fingerprintKey.isEmpty () && !encodeKey.isEmpty () && !fingerprintKey.equals (encodeKey)) {
             FingerprintKeys.KEY_ALIAS_DEFAULT_FINGERPRINT_LIB = fingerprintKey;
             FingerprintKeys.KEY_ALIAS_DEFAULT_ENCODE = encodeKey;

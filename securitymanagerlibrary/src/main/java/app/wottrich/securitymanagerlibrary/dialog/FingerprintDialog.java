@@ -11,6 +11,7 @@ import android.os.Build;
 import android.preference.PreferenceManager;
 import android.security.keystore.KeyGenParameterSpec;
 import android.security.keystore.KeyProperties;
+import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.support.annotation.RequiresPermission;
@@ -18,6 +19,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.hardware.fingerprint.FingerprintManagerCompat;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -29,6 +31,7 @@ import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 
 import app.wottrich.securitymanagerlibrary.R;
+import app.wottrich.securitymanagerlibrary.exception.CancelButtonException;
 import app.wottrich.securitymanagerlibrary.fingerprint.FingerprintHelper;
 import app.wottrich.securitymanagerlibrary.fingerprint.FingerprintKeys;
 import app.wottrich.securitymanagerlibrary.fingerprint.FingerprintSetup;
@@ -70,15 +73,14 @@ public class FingerprintDialog extends BaseLockDialog implements View.OnClickLis
     private View.OnClickListener listenerCanceled;
     //</editor-folder>
 
-    //<editor-folder defaultstate="Collapsed" desc="Context Fingerprint">
+    //<editor-folder defaultstate="Collapsed" desc="Context and variables Fingerprint">
+    private boolean hasSetCanceled = true;
     private Activity activity;
     private PreferenceManager.OnActivityResultListener activityResult;
     private Fragment fragment;
     //</editor-folder>
 
     //<editor-folder defaultstate="Collapsed" desc="Security Key and FingerprintManager">
-    private Cipher cipher;
-    private KeyStore keyStore;
     private FingerprintSetup setup;
     private FingerprintManagerCompat manager;
     private FingerprintHelper helper;
@@ -97,6 +99,17 @@ public class FingerprintDialog extends BaseLockDialog implements View.OnClickLis
     @RequiresPermission("android.permission.USE_FINGERPRINT")
     public FingerprintDialog(@NonNull Activity activity) {
         this.activity = activity;
+    }
+
+    @RequiresPermission("android.permission.USE_FINGERPRINT")
+    public FingerprintDialog(@NonNull Activity activity, @LayoutRes int layout) {
+        this.activity = activity;
+        this.layout = layout;
+        this.otherLayout = true;
+        this.enterAnimation = null;
+        this.exitAnimation = null;
+        this.hasSetCanceled = true;
+        createView(activity);
     }
 
     @RequiresPermission("android.permission.USE_FINGERPRINT")
@@ -135,6 +148,9 @@ public class FingerprintDialog extends BaseLockDialog implements View.OnClickLis
 
     @Override
     protected void onLoadComponents(View v) {
+        if (otherLayout)
+            return;
+
         root = v.findViewById(R.id.clRootFingerprint);
         content = v.findViewById(R.id.clContent);
         ivFingerprint = v.findViewById(R.id.ivFingerprint);
@@ -149,9 +165,12 @@ public class FingerprintDialog extends BaseLockDialog implements View.OnClickLis
 
     @Override
     protected void onInitValues() {
-        setTextWithDefaultMessage(tvTitle, title, "Fingerprint Confirm");
-        setText(tvSubTitle, subTitle);
-        setText(tvMessage, message);
+        if (!otherLayout) {
+            setTextWithDefaultMessage(tvTitle, title, "Fingerprint Confirm");
+            setText(tvSubTitle, subTitle);
+            setText(tvMessage, message);
+            btnCancel.setOnClickListener(this);
+        } else if (btnCancel == null) throw new CancelButtonException();
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
             if (activity.checkSelfPermission(Manifest.permission.USE_FINGERPRINT) != PackageManager.PERMISSION_GRANTED) {
@@ -164,7 +183,7 @@ public class FingerprintDialog extends BaseLockDialog implements View.OnClickLis
             }
         else Log.w("WARNING LOCK LIB", "INVALID SDK VERSION");
 
-        btnCancel.setOnClickListener(this);
+
     }
 
     //<editor-folder defaultstate="Collapsed" desc="Settings Fingerprint">
@@ -184,7 +203,7 @@ public class FingerprintDialog extends BaseLockDialog implements View.OnClickLis
         KeyguardManager keyguardManager = (KeyguardManager) activity.getSystemService(Context.KEYGUARD_SERVICE);
         if (keyguardManager != null && keyguardManager.isKeyguardSecure()) {
             if (setup.generateKey() && setup.initCipher()) {
-                FingerprintManagerCompat.CryptoObject cryptoObject = new FingerprintManagerCompat.CryptoObject(cipher);
+                FingerprintManagerCompat.CryptoObject cryptoObject = new FingerprintManagerCompat.CryptoObject(setup.getCipher());
 
                 helper = new FingerprintHelper();
                 if (all != null) helper.allCallback(this);
@@ -213,7 +232,7 @@ public class FingerprintDialog extends BaseLockDialog implements View.OnClickLis
 
     @Override
     public void onClick(View v) {
-        if (v.getId() == R.id.clRootFingerprint || v.getId() == R.id.btnCancel) {
+        if (v.getId() == R.id.clRootFingerprint || v.getId() == R.id.btnCancel || v.getId() == btnCancel.getId()) {
             dismissPattern();
             if (listenerCanceled != null)
                 listenerCanceled.onClick(v);
@@ -253,11 +272,12 @@ public class FingerprintDialog extends BaseLockDialog implements View.OnClickLis
 
     @Override
     public void onFailed() {
-        if (getActivity() != null && getActivity().getResources() != null)
-            ivFingerprint.setColorFilter(getActivity().getResources().getColor(android.R.color.holo_red_dark));
+        if (!otherLayout) {
+            if (getActivity() != null && getActivity().getResources() != null)
+                ivFingerprint.setColorFilter(getActivity().getResources().getColor(android.R.color.holo_red_dark));
 
-        setText(tvInformation, "Failed. Try again!");
-
+            setText(tvInformation, "Failed. Try again!");
+        }
         if (all != null) all.onFailed();
         else if (failed != null) failed.onFailed();
     }
@@ -297,6 +317,11 @@ public class FingerprintDialog extends BaseLockDialog implements View.OnClickLis
     //</editor-folder>
 
     //<editor-folder defaultstate="Collapsed" desc="Methods and Methods with FingerprintDialog instance">
+    public void setBtnCancel (Button btnCancel) {
+        this.btnCancel = btnCancel;
+        this.btnCancel.setOnClickListener(this);
+    }
+
     public void setListenerCanceled (View.OnClickListener listenerCanceled) {
         this.listenerCanceled = listenerCanceled;
     }

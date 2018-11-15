@@ -64,4 +64,11 @@ public class FingerprintSetup {
 		}
 	}
 
+	public Cipher getCipher() {
+		return cipher;
+	}
+
+	public KeyStore getKeyStore() {
+		return keyStore;
+	}
 }

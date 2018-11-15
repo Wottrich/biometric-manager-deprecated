@@ -6,4 +6,23 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
+    <Button
+        android:text="Default fingerprint"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:onClick="defaultFingerprint"
+        android:id="@+id/btn1"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content" />
+
+    <Button
+        android:text="Custom fingerprint"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/btn1"
+        android:onClick="customFingerprint"
+        android:id="@+id/btn2"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content" />
+
 </android.support.constraint.ConstraintLayout>

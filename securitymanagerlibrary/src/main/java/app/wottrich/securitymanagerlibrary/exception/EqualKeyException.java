@@ -5,7 +5,7 @@ package app.wottrich.securitymanagerlibrary.exception;
  * @version 1.0
  * @since 10/11/2018.
  */
-public class EqualKeyException extends Exception {
+public class EqualKeyException extends RuntimeException {
 
 	public EqualKeyException(String message) {
 		super (message);

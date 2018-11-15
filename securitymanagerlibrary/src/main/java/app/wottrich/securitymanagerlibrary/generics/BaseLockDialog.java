@@ -1,6 +1,7 @@
 package app.wottrich.securitymanagerlibrary.generics;
 
 import android.app.Dialog;
+import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
@@ -20,6 +21,7 @@ import android.view.animation.Animation;
 import android.view.animation.TranslateAnimation;
 
 import app.wottrich.securitymanagerlibrary.R;
+import app.wottrich.securitymanagerlibrary.exception.CancelButtonException;
 
 
 /**
@@ -29,63 +31,61 @@ import app.wottrich.securitymanagerlibrary.R;
  */
 public abstract class BaseLockDialog extends DialogFragment {
 
+    //<editor-folder defaultstate="Collapsed" desc="View's">
     protected ViewGroup root;
     protected ViewGroup content;
 
-    public void showSecurityDialog (@NonNull FragmentManager manager) {
+    protected boolean otherLayout = false;
+    protected int layout = R.layout.dialog_fingerprint;
+    protected View v;
+    //</editor-folder>
+
+    //<editor-folder defaultstate="Collapsed" desc="Default animations">
+    protected TranslateAnimation enterAnimation = defaultTranslateAnimation(false);
+    protected TranslateAnimation exitAnimation = defaultTranslateAnimation(true);
+    protected AlphaAnimation alphaEnterAnimation = defaultAlphaAnimation(false);
+    protected AlphaAnimation alphaExitAnimation = defaultAlphaAnimation(true);
+    //</editor-folder>
+
+    public void showSecurityDialog(@NonNull FragmentManager manager) {
         show(manager, "Fingerprint Security Manager Library");
     }
 
-    public void dismissPattern () {
-        AlphaAnimation alpha = null;
-        TranslateAnimation animation = null;
-        if (content != null) {
-            if (root != null){
-                alpha = new AlphaAnimation(1, 0);
-                alpha.setRepeatCount(0);
-                alpha.setDuration(350);
-                alpha.setInterpolator(new AccelerateDecelerateInterpolator());
-            }
-            animation = new TranslateAnimation(
-                    Animation.RELATIVE_TO_PARENT, 0f,
-                    Animation.RELATIVE_TO_PARENT, 0f,
-                    Animation.RELATIVE_TO_PARENT, 0f,
-                    Animation.RELATIVE_TO_PARENT, 1f);
-            animation.setRepeatMode(0);
-            animation.setInterpolator(new AccelerateDecelerateInterpolator());
-            animation.setDuration(350);
-            animation.setAnimationListener(new Animation.AnimationListener() {
-                @Override
-                public void onAnimationStart(Animation animation) {
+    //<editor-folder defaultstate="Collapsed" desc="Enter and Exit">
 
-                }
+    /**
+     * This method is used to dismiss dialog with default or custom animation
+     */
+    public void dismissPattern() {
+        if (root != null)
+            root.startAnimation(alphaExitAnimation);
 
-                @Override
-                public void onAnimationEnd(Animation animation) {
-                    BaseLockDialog.this.dismiss();
-                }
-
-                @Override
-                public void onAnimationRepeat(Animation animation) {
-
-                }
-            });
-            if (root != null && alpha != null)
-                root.startAnimation(alpha);
-            content.startAnimation(animation);
-        }
+        if (content != null && exitAnimation != null)
+            content.startAnimation(exitAnimation);
+        else BaseLockDialog.this.dismiss();
     }
 
-    public void jumpSerious () {
-        AlphaAnimation alpha = null;
-        TranslateAnimation animation = null;
-        if (content != null){
-            if (root != null) {
-                alpha = new AlphaAnimation(0, 1);
-                alpha.setRepeatCount(0);
-                alpha.setDuration(350);
-                alpha.setInterpolator(new AccelerateDecelerateInterpolator());
-            }
+    /**
+     * This method is used to show dialog with default or custom animation
+     */
+    public void jumpSerious() {
+        if (root != null)
+            root.startAnimation(alphaEnterAnimation);
+
+        if (content != null && enterAnimation != null)
+            content.startAnimation(enterAnimation);
+    }
+    //</editor-folder>
+
+    //<editor-folder defaultstate="Collapsed" desc="Animations">
+
+    /**
+     * @param dismiss used to control type animation
+     * @return return default animation
+     */
+    public TranslateAnimation defaultTranslateAnimation(boolean dismiss) {
+        TranslateAnimation animation;
+        if (! dismiss) {
             animation = new TranslateAnimation(
                     Animation.RELATIVE_TO_PARENT, 0f,
                     Animation.RELATIVE_TO_PARENT, 0f,
@@ -110,12 +110,59 @@ public abstract class BaseLockDialog extends DialogFragment {
 
                 }
             });
-            if (root != null && alpha != null)
-                root.startAnimation(alpha);
-            content.startAnimation(animation);
+        } else {
+            animation = new TranslateAnimation(
+                    Animation.RELATIVE_TO_PARENT, 0f,
+                    Animation.RELATIVE_TO_PARENT, 0f,
+                    Animation.RELATIVE_TO_PARENT, 0f,
+                    Animation.RELATIVE_TO_PARENT, 1f);
+
+            animation.setRepeatMode(0);
+            animation.setInterpolator(new AccelerateDecelerateInterpolator());
+            animation.setDuration(350);
+            animation.setAnimationListener(new Animation.AnimationListener() {
+                @Override
+                public void onAnimationStart(Animation animation) {
+
+                }
+
+                @Override
+                public void onAnimationEnd(Animation animation) {
+                    BaseLockDialog.this.dismiss();
+                }
+
+                @Override
+                public void onAnimationRepeat(Animation animation) {
+
+                }
+            });
         }
+        return animation;
     }
 
+    /**
+     * @param dismiss used to control type animation
+     * @return return default animation
+     */
+    public AlphaAnimation defaultAlphaAnimation(boolean dismiss) {
+        AlphaAnimation alpha;
+        if (! dismiss) {
+            alpha = new AlphaAnimation(0, 1);
+            alpha.setRepeatCount(0);
+            alpha.setDuration(350);
+            alpha.setInterpolator(new AccelerateDecelerateInterpolator());
+        } else {
+            alpha = new AlphaAnimation(1, 0);
+            alpha.setRepeatCount(0);
+            alpha.setDuration(350);
+            alpha.setInterpolator(new AccelerateDecelerateInterpolator());
+        }
+        return alpha;
+    }
+
+    //</editor-folder>
+
+    //<editor-folder defaultstate="Collapsed" desc="Override Method's">
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
@@ -142,14 +189,76 @@ public abstract class BaseLockDialog extends DialogFragment {
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View v = inflater.inflate(R.layout.dialog_fingerprint, container, false);
-        this.onLoadComponents(v);
+        if (v == null)
+            v = inflater.inflate(layout, container, false);
+
+
+        if (! otherLayout)
+            this.onLoadComponents(v);
+
         new Handler().post(this::onInitValues);
         return v;
     }
+    //</editor-folder>
 
+    //<editor-folder defaultstate="Collapsed" desc="Controller View's">
+
+    /**
+     * Create {@link LayoutInflater} and inflate a custom layout
+     *
+     * @param context used to create LayoutInflater
+     */
+    public void createView(Context context) {
+        if (v == null)
+            v = LayoutInflater.from(context).inflate(layout, null, false);
+    }
+
+    /**
+     * @return custom layout
+     */
+    public View getLayoutView() {
+        return v;
+    }
+    //</editor-folder>
+
+    //<editor-folder defaultstate="Collapsed" desc="Set Method's">
+    public void setContent(ViewGroup view) {
+        this.content = view;
+    }
+
+    public void setRoot(ViewGroup view) {
+        this.root = view;
+    }
+
+    public void setEnterAnimation(TranslateAnimation enterAnimation) {
+        this.enterAnimation = enterAnimation;
+    }
+
+    public void setExitAnimation(TranslateAnimation exitAnimation) {
+        this.exitAnimation = exitAnimation;
+    }
+
+    public void setEnterDefaultAnimation() {
+        this.enterAnimation = defaultTranslateAnimation(false) ;
+    }
+
+    public void setExitDefaultAnimation() {
+        this.exitAnimation = defaultTranslateAnimation(true);
+    }
+
+    public void setAlphaEnterAnimation(AlphaAnimation alphaEnterAnimation) {
+        this.alphaEnterAnimation = alphaEnterAnimation;
+    }
+
+    public void setAlphaExitAnimation(AlphaAnimation alphaExitAnimation) {
+        this.alphaExitAnimation = alphaExitAnimation;
+    }
+    //</editor-folder>
+
+    //<editor-folder defaultstate="Collapsed" desc="Abstract Method's">
     protected abstract void onLoadComponents(View v);
 
-    protected abstract void onInitValues();
+    protected abstract void onInitValues() throws CancelButtonException;
+    //</editor-folder>
 
 }
