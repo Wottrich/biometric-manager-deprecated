@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/consMain"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/transparent_purple_brown"
+    android:paddingEnd="38.5dp"
+    android:paddingStart="38.5dp">
+
+    <LinearLayout
+        android:id="@+id/llContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/shape_fingerprint"
+        android:orientation="vertical"
+        android:paddingBottom="10dp"
+        android:paddingEnd="20.5dp"
+        android:paddingStart="20.5dp"
+        android:paddingTop="20.5dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Fingerprint login"
+            android:textColor="@android:color/black"
+            android:textSize="18sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="10dp"
+            android:layout_marginTop="15dp"
+            android:text="Confirm fingerprint to continue"
+            android:textSize="14sp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="19dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:orientation="horizontal"
+            android:paddingBottom="10dp"
+            android:paddingTop="10dp">
+
+            <ImageView
+                android:id="@+id/ivFingerprint"
+                android:layout_width="35.5dp"
+                android:layout_height="35.5dp"
+                android:contentDescription="fingerprint"
+                android:src="@drawable/baseline_fingerprint_black_48" />
+
+            <TextView
+                android:id="@+id/tvSensor"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginStart="8dp"
+                android:text="Touch sensor"
+                android:textColor="@android:color/darker_gray"
+                android:textSize="12sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:layout_marginTop="20dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/tvUsePasswordAction"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:layout_marginEnd="10dp"
+                android:padding="5dp"
+                android:text="Use Password"
+                android:textAllCaps="true"
+                android:textColor="@color/green_water"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/tvCancelAction"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:padding="5dp"
+                android:text="Cancel"
+                android:textAllCaps="true"
+                android:textColor="@color/green_water"
+                android:textSize="14sp" />
+        </LinearLayout>
+
+    </LinearLayout>
+
+</android.support.constraint.ConstraintLayout>

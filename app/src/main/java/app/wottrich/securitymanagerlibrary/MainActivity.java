@@ -7,6 +7,9 @@ import android.view.LayoutInflater;
 import android.view.MenuInflater;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import app.wottrich.securitymanagerlibrary.dialog.FingerprintDialog;
@@ -31,21 +34,54 @@ public class MainActivity extends AppCompatActivity {
 
     public void customFingerprint(View view) {
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
-            FingerprintDialog dialog = new FingerprintDialog(this, R.layout.test_dialog_fingerprint);
-            View myView = dialog.getLayoutView();
+            FingerprintDialog dialog = new FingerprintDialog (this, R.layout.dialog_fingerprint_pattern);
+            View v = dialog.getLayoutView ();
 
-            //required
-            dialog.setBtnCancel(myView.findViewById(R.id.btnCancel));
+            dialog.setDismissAfterSuccess (false);
+            dialog.setBtnCancel ((TextView) v.findViewById (R.id.tvCancelAction));
 
-            //optional
-            dialog.setRoot(myView.findViewById(R.id.root));
-            dialog.setContent(myView.findViewById(R.id.clContent));
+            TextView tvPassword = v.findViewById (R.id.tvUsePasswordAction);
+            tvPassword.setOnClickListener (viewButton -> dialog.dismissPattern ());
 
-            //optional
-            dialog.setEnterDefaultAnimation();
-            dialog.setExitDefaultAnimation();
+            dialog.setSuccess (result -> {
+                Toast.makeText (this, "Success", Toast.LENGTH_SHORT).show ();
 
-            dialog.showSecurityDialog(this.getSupportFragmentManager());
+                LinearLayout llContainer = v.findViewById (R.id.llContainer);
+				TextView tvInformation = v.findViewById (R.id.tvSensor);
+				ImageView ivFingerprint = v.findViewById (R.id.ivFingerprint);
+
+				ivFingerprint.setColorFilter (this.getResources ().getColor (R.color.mid_green, this.getTheme ()));
+                llContainer.setBackgroundResource (R.drawable.shape_fingprint_success);
+				tvInformation.setText ("Success!");
+
+				llContainer.postDelayed (dialog::dismissPattern, 250);
+            });
+
+            dialog.setError (((error, dismiss) -> {
+                Toast.makeText(this, error, Toast.LENGTH_SHORT).show();
+
+                LinearLayout llContainer = v.findViewById (R.id.llContainer);
+                ImageView ivFingerprint = v.findViewById (R.id.ivFingerprint);
+
+                ivFingerprint.setColorFilter (this.getResources ().getColor (R.color.mid_red, this.getTheme ()));
+                llContainer.setBackgroundResource (R.drawable.shape_fingeprint_error);
+
+                if (dismiss)
+                    llContainer.postDelayed (dialog::dismissPattern, 250);
+            }));
+
+            dialog.setFailed (() -> {
+
+                LinearLayout llContainer = v.findViewById (R.id.llContainer);
+                TextView tvInformation = v.findViewById (R.id.tvSensor);
+                ImageView ivFingerprint = v.findViewById (R.id.ivFingerprint);
+
+                ivFingerprint.setColorFilter (this.getResources ().getColor (R.color.mid_red, this.getTheme ()));
+                llContainer.setBackgroundResource (R.drawable.shape_fingeprint_error);
+                tvInformation.setText ("Failed. Try Again!");
+            });
+
+            dialog.showSecurityDialog (this.getSupportFragmentManager ());
         }
     }
 }

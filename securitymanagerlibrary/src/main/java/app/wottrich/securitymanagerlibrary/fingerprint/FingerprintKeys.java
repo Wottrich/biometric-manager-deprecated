@@ -10,8 +10,8 @@ import app.wottrich.securitymanagerlibrary.exception.EqualKeyException;
  */
 public class FingerprintKeys {
 
-    public static String KEY_ALIAS_DEFAULT_FINGERPRINT_LIB = "FINGERPRINT_ALIAS_LOCK_LIB";
-    public static String KEY_ALIAS_DEFAULT_ENCODE = "FINGERPRINT_ALIAS_ENCODE";
+    static String KEY_ALIAS_DEFAULT_FINGERPRINT_LIB = "FINGERPRINT_ALIAS_LOCK_LIB";
+    static String KEY_ALIAS_DEFAULT_ENCODE = "FINGERPRINT_ALIAS_ENCODE";
 
     public static void setKeyFingerprint (@NonNull String key) {
         FingerprintKeys.KEY_ALIAS_DEFAULT_FINGERPRINT_LIB = key;

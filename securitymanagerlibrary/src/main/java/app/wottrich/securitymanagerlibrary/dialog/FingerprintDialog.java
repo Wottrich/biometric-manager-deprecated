@@ -70,6 +70,7 @@ public class FingerprintDialog extends BaseLockDialog implements View.OnClickLis
     private String message = "";
 
     private Button btnCancel;
+    private TextView tvCancel;
     private View.OnClickListener listenerCanceled;
     //</editor-folder>
 
@@ -93,7 +94,8 @@ public class FingerprintDialog extends BaseLockDialog implements View.OnClickLis
     private OnCanceledFingerprint canceled;
     private OnFailedFingerprint failed;
     private AllInterfaceFingerprint all;
-    //</editor-folder>
+	private boolean dismissAfterSuccess = true;
+	//</editor-folder>
 
     //<editor-folder defaultstate="Collapsed" desc="Constructors Defaults with Activity">
     @RequiresPermission("android.permission.USE_FINGERPRINT")
@@ -170,7 +172,7 @@ public class FingerprintDialog extends BaseLockDialog implements View.OnClickLis
             setText(tvSubTitle, subTitle);
             setText(tvMessage, message);
             btnCancel.setOnClickListener(this);
-        } else if (btnCancel == null) throw new CancelButtonException();
+        } else if (btnCancel == null && tvCancel == null) throw new CancelButtonException();
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
             if (activity.checkSelfPermission(Manifest.permission.USE_FINGERPRINT) != PackageManager.PERMISSION_GRANTED) {
@@ -232,7 +234,7 @@ public class FingerprintDialog extends BaseLockDialog implements View.OnClickLis
 
     @Override
     public void onClick(View v) {
-        if (v.getId() == R.id.clRootFingerprint || v.getId() == R.id.btnCancel || v.getId() == btnCancel.getId()) {
+        if (v.getId() == R.id.clRootFingerprint || v.getId() == R.id.btnCancel || (btnCancel != null && v.getId() == btnCancel.getId()) || (tvCancel != null && v.getId () == tvCancel.getId ())) {
             dismissPattern();
             if (listenerCanceled != null)
                 listenerCanceled.onClick(v);
@@ -253,7 +255,8 @@ public class FingerprintDialog extends BaseLockDialog implements View.OnClickLis
         if (all != null) all.onSuccess(result);
         else if (success != null) success.onSuccess(result);
 
-        dismissPattern();
+        if (dismissAfterSuccess)
+        	dismissPattern();
     }
 
     @Override
@@ -322,13 +325,34 @@ public class FingerprintDialog extends BaseLockDialog implements View.OnClickLis
         this.btnCancel.setOnClickListener(this);
     }
 
-    public void setListenerCanceled (View.OnClickListener listenerCanceled) {
+    public void setBtnCancel (TextView tvCancel) {
+        this.tvCancel = tvCancel;
+        this.tvCancel.setOnClickListener(this);
+    }
+
+	public void setDismissAfterSuccess (boolean dismissAfterSuccess) {
+		this.dismissAfterSuccess = dismissAfterSuccess;
+	}
+
+	public void setListenerCanceled (View.OnClickListener listenerCanceled) {
         this.listenerCanceled = listenerCanceled;
     }
 
     public FingerprintDialog canceledListener(View.OnClickListener listenerCanceled) {
         this.listenerCanceled = listenerCanceled;
         return this;
+    }
+
+	public void setSuccess (OnSuccessFingerprint success) {
+		this.success = success;
+	}
+
+	public void setError (OnErrorFingerprint error) {
+		this.error = error;
+	}
+
+    public void setFailed (OnFailedFingerprint failed) {
+        this.failed = failed;
     }
 
     //<editor-folder defaultstate="Collapsed" desc="Pack`s fingerprint callback">
@@ -379,12 +403,17 @@ public class FingerprintDialog extends BaseLockDialog implements View.OnClickLis
     }
     //</editor-folder>
 
+	public FingerprintDialog setDismissAfterSuccessInstance (boolean dismissAfterSuccess) {
+		this.dismissAfterSuccess = dismissAfterSuccess;
+		return this;
+	}
+
     public FingerprintDialog allCallback (AllInterfaceFingerprint all) {
         this.all = all;
         return this;
     }
 
-    public FingerprintDialog setSuccess(OnSuccessFingerprint success) {
+    public FingerprintDialog setSuccessInstance (OnSuccessFingerprint success) {
         this.success = success;
         return this;
     }
@@ -394,7 +423,7 @@ public class FingerprintDialog extends BaseLockDialog implements View.OnClickLis
         return this;
     }
 
-    public FingerprintDialog setError(OnErrorFingerprint error) {
+    public FingerprintDialog setErrorInstance (OnErrorFingerprint error) {
         this.error = error;
         return this;
     }
@@ -404,7 +433,7 @@ public class FingerprintDialog extends BaseLockDialog implements View.OnClickLis
         return this;
     }
 
-    public FingerprintDialog setFailed(OnFailedFingerprint failed) {
+    public FingerprintDialog setFailedInstance (OnFailedFingerprint failed) {
         this.failed = failed;
         return this;
     }
